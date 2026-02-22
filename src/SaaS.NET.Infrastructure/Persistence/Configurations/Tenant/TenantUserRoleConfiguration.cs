@@ -8,7 +8,7 @@ public class TenantUserRoleConfiguration : IEntityTypeConfiguration<TenantUserRo
 {
     public void Configure(EntityTypeBuilder<TenantUserRole> builder)
     {
-        builder.HasIndex(tur => new { tur.TenantUserId, tur.TenantRoleId }).IsUnique();
+        builder.HasKey(tur => new { tur.TenantUserId, tur.TenantRoleId, tur.DeletedAt });
 
         builder.HasOne(tur => tur.TenantUser)
             .WithMany(tu => tu.TenantUserRoles)

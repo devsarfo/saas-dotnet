@@ -12,6 +12,7 @@ public class PersonalAccessToken : Entity
 
     public User User { get; set; } = null!;
 
+    [MaxLength(255)]
     public required string Name { get; set; }
 
     [MaxLength(255)] 

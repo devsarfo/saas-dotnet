@@ -30,6 +30,7 @@ saas-dotnet/
 │   ├── SaaS.NET.Web/           # Entry point: Controllers & DI setup
 │   └── SaaS.NET.Shared/        # Utilities & extensions
 ├── tests/                      # Unit, Integration, and Architecture tests
+├── docker/                     # Docker configuration
 └── saas-dotnet.sln             # Solution file
 ```
 

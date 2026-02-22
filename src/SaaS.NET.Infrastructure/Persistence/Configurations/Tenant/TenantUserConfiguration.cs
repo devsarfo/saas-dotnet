@@ -8,7 +8,7 @@ public class TenantUserConfiguration : IEntityTypeConfiguration<TenantUser>
 {
     public void Configure(EntityTypeBuilder<TenantUser> builder)
     {
-        builder.HasIndex(tu => new { tu.TenantId, tu.UserId });
+        builder.HasIndex(tu => new { tu.TenantId, tu.UserId, tu.DeletedAt });
 
         builder.HasOne(tu => tu.Tenant)
             .WithMany(t => t.TenantUsers)

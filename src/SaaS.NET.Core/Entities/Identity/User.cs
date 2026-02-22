@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using SaaS.NET.Core.Common;
 using SaaS.NET.Shared.Constants;
@@ -18,16 +19,21 @@ public class User : AuditableEntity
         IsActive = isActive;
     }
 
+    [MaxLength(255)]
     public required string Name { get; set; }
 
+    [MaxLength(255)]
     public required string FirstName { get; set; }
 
+    [MaxLength(255)]
     public required string LastName { get; set; }
 
+    [MaxLength(255)]
     public required string Email { get; set; }
 
     public DateTime? EmailVerifiedAt { get; set; }
 
+    [MaxLength(255)]
     public string? Phone { get; set; }
 
     public DateTime? PhoneVerifiedAt { get; set; }

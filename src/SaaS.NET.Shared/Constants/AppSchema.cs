@@ -2,7 +2,7 @@ namespace SaaS.NET.Shared.Constants;
 
 public static class AppSchema
 {
-    public const string Identity = "indentity";
+    public const string Identity = "identity";
     public const string Users = "users";
     public const string Sessions = "sessions";
     public const string PersonalAccessTokens = "personal_access_tokens";

@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using SaaS.NET.Core.Common;
 using SaaS.NET.Shared.Constants;
 
 namespace SaaS.NET.Core.Entities.Tenant;
 
 [Table(AppSchema.TenantUserRoles, Schema = AppSchema.Identity)]
-public class TenantUserRole
+public class TenantUserRole : TimestampEntity
 {
     public Guid TenantUserId { get; set; }
     public TenantUser TenantUser { get; set; } = null!;

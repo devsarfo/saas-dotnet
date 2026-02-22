@@ -8,7 +8,7 @@ public class TenantRolePermissionConfiguration : IEntityTypeConfiguration<Tenant
 {
     public void Configure(EntityTypeBuilder<TenantRolePermission> builder)
     {
-        builder.HasKey(trp => new { trp.TenantRoleId, trp.TenantPermissionId });
+        builder.HasKey(trp => new { trp.TenantRoleId, trp.TenantPermissionId, trp.DeletedAt });
 
         builder.HasOne(trp => trp.TenantRole)
             .WithMany(tr => tr.TenantRolePermissions)
