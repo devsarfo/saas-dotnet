@@ -1,0 +1,39 @@
+name: saas-dotnet
+
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg17
+    container_name: saas-dotnet-db
+    environment:
+      POSTGRES_DB: saas
+      POSTGRES_USER: dotnet
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U dotnet -d saas" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  api:
+    container_name: saas-dotnet-api
+    build:
+      context: ..
+      dockerfile: src/SaaS.NET.Web/Dockerfile
+    environment:
+      Postgres__Host: postgres
+      Postgres__Database: saas
+      Postgres__Username: dotnet
+      Postgres__Password: password
+      Postgres__Port: 5432
+      RuntimeEnvironment: docker
+    ports:
+      - "7108:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+volumes:
+  postgres_data:
