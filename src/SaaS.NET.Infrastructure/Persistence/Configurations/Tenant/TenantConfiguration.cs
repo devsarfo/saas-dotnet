@@ -19,10 +19,5 @@ public class TenantConfiguration : IEntityTypeConfiguration<Core.Entities.Tenant
             .WithOne(tr => tr.Tenant)
             .HasForeignKey(tr => tr.TenantId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasMany<TenantPermission>()
-            .WithOne(tp => tp.Tenant)
-            .HasForeignKey(tp => tp.TenantId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -12,8 +12,8 @@ using SaaS.NET.Infrastructure.Persistence;
 namespace SaaS.NET.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260222111617_AddIdentity")]
-    partial class AddIdentity
+    [Migration("20260225150903_AddIdentityTables")]
+    partial class AddIdentityTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,58 @@ namespace SaaS.NET.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("SaaS.NET.Core.Entities.Identity.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("slug");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_permissions");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ix_permissions_slug");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_permissions_tenant_id");
+
+                    b.ToTable("permissions", "identity");
+                });
 
             modelBuilder.Entity("SaaS.NET.Core.Entities.Identity.PersonalAccessToken", b =>
                 {
@@ -229,54 +281,6 @@ namespace SaaS.NET.Infrastructure.Migrations
                     b.ToTable("tenants", "identity");
                 });
 
-            modelBuilder.Entity("SaaS.NET.Core.Entities.Tenant.TenantPermission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("slug");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id")
-                        .HasName("pk_tenant_permissions");
-
-                    b.HasIndex("TenantId", "Slug")
-                        .HasDatabaseName("ix_tenant_permissions_tenant_id_slug");
-
-                    b.ToTable("tenant_permissions", "identity");
-                });
-
             modelBuilder.Entity("SaaS.NET.Core.Entities.Tenant.TenantRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -295,6 +299,10 @@ namespace SaaS.NET.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -319,43 +327,53 @@ namespace SaaS.NET.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_tenant_roles");
 
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasDatabaseName("ix_tenant_roles_slug");
-
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_tenant_roles_tenant_id");
+
+                    b.HasIndex("Slug", "DeletedAt")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenant_roles_slug_deleted_at");
 
                     b.ToTable("tenant_roles", "identity");
                 });
 
             modelBuilder.Entity("SaaS.NET.Core.Entities.Tenant.TenantRolePermission", b =>
                 {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
                     b.Property<Guid>("TenantRoleId")
                         .HasColumnType("uuid")
                         .HasColumnName("tenant_role_id");
 
-                    b.Property<Guid>("TenantPermissionId")
+                    b.Property<Guid>("PermissionId")
                         .HasColumnType("uuid")
-                        .HasColumnName("tenant_permission_id");
-
-                    b.Property<DateTime>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at");
+                        .HasColumnName("permission_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("TenantRoleId", "TenantPermissionId", "DeletedAt")
+                    b.HasKey("TenantId", "TenantRoleId", "PermissionId")
                         .HasName("pk_tenant_role_permissions");
 
-                    b.HasIndex("TenantPermissionId")
-                        .HasDatabaseName("ix_tenant_role_permissions_tenant_permission_id");
+                    b.HasIndex("PermissionId")
+                        .HasDatabaseName("ix_tenant_role_permissions_permission_id");
+
+                    b.HasIndex("TenantRoleId")
+                        .HasDatabaseName("ix_tenant_role_permissions_tenant_role_id");
+
+                    b.HasIndex("TenantId", "TenantRoleId", "PermissionId", "DeletedAt")
+                        .HasDatabaseName("ix_tenant_role_permissions_tenant_id_tenant_role_id_permission");
 
                     b.ToTable("tenant_role_permissions", "identity");
                 });
@@ -401,6 +419,10 @@ namespace SaaS.NET.Infrastructure.Migrations
 
             modelBuilder.Entity("SaaS.NET.Core.Entities.Tenant.TenantUserRole", b =>
                 {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
                     b.Property<Guid>("TenantUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("tenant_user_id");
@@ -409,25 +431,36 @@ namespace SaaS.NET.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("tenant_role_id");
 
-                    b.Property<DateTime>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("TenantUserId", "TenantRoleId", "DeletedAt")
+                    b.HasKey("TenantId", "TenantUserId", "TenantRoleId")
                         .HasName("pk_tenant_user_roles");
 
                     b.HasIndex("TenantRoleId")
                         .HasDatabaseName("ix_tenant_user_roles_tenant_role_id");
 
+                    b.HasIndex("TenantUserId")
+                        .HasDatabaseName("ix_tenant_user_roles_tenant_user_id");
+
                     b.ToTable("tenant_user_roles", "identity");
+                });
+
+            modelBuilder.Entity("SaaS.NET.Core.Entities.Identity.Permission", b =>
+                {
+                    b.HasOne("SaaS.NET.Core.Entities.Tenant.Tenant", null)
+                        .WithMany("Permissions")
+                        .HasForeignKey("TenantId")
+                        .HasConstraintName("fk_permissions_tenants_tenant_id");
                 });
 
             modelBuilder.Entity("SaaS.NET.Core.Entities.Identity.PersonalAccessToken", b =>
@@ -453,18 +486,6 @@ namespace SaaS.NET.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SaaS.NET.Core.Entities.Tenant.TenantPermission", b =>
-                {
-                    b.HasOne("SaaS.NET.Core.Entities.Tenant.Tenant", "Tenant")
-                        .WithMany("TenantPermissions")
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_tenant_permissions_tenants_tenant_id");
-
-                    b.Navigation("Tenant");
-                });
-
             modelBuilder.Entity("SaaS.NET.Core.Entities.Tenant.TenantRole", b =>
                 {
                     b.HasOne("SaaS.NET.Core.Entities.Tenant.Tenant", "Tenant")
@@ -479,12 +500,19 @@ namespace SaaS.NET.Infrastructure.Migrations
 
             modelBuilder.Entity("SaaS.NET.Core.Entities.Tenant.TenantRolePermission", b =>
                 {
-                    b.HasOne("SaaS.NET.Core.Entities.Tenant.TenantPermission", "TenantPermission")
+                    b.HasOne("SaaS.NET.Core.Entities.Identity.Permission", "Permission")
                         .WithMany("TenantRolePermissions")
-                        .HasForeignKey("TenantPermissionId")
+                        .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_tenant_role_permissions_tenant_permissions_tenant_permissio");
+                        .HasConstraintName("fk_tenant_role_permissions_permissions_permission_id");
+
+                    b.HasOne("SaaS.NET.Core.Entities.Tenant.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tenant_role_permissions_tenants_tenant_id");
 
                     b.HasOne("SaaS.NET.Core.Entities.Tenant.TenantRole", "TenantRole")
                         .WithMany("TenantRolePermissions")
@@ -493,7 +521,9 @@ namespace SaaS.NET.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_tenant_role_permissions_tenant_roles_tenant_role_id");
 
-                    b.Navigation("TenantPermission");
+                    b.Navigation("Permission");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("TenantRole");
                 });
@@ -521,6 +551,13 @@ namespace SaaS.NET.Infrastructure.Migrations
 
             modelBuilder.Entity("SaaS.NET.Core.Entities.Tenant.TenantUserRole", b =>
                 {
+                    b.HasOne("SaaS.NET.Core.Entities.Tenant.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tenant_user_roles_tenants_tenant_id");
+
                     b.HasOne("SaaS.NET.Core.Entities.Tenant.TenantRole", "TenantRole")
                         .WithMany("TenantUserRoles")
                         .HasForeignKey("TenantRoleId")
@@ -535,23 +572,25 @@ namespace SaaS.NET.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_tenant_user_roles_tenant_users_tenant_user_id");
 
+                    b.Navigation("Tenant");
+
                     b.Navigation("TenantRole");
 
                     b.Navigation("TenantUser");
                 });
 
+            modelBuilder.Entity("SaaS.NET.Core.Entities.Identity.Permission", b =>
+                {
+                    b.Navigation("TenantRolePermissions");
+                });
+
             modelBuilder.Entity("SaaS.NET.Core.Entities.Tenant.Tenant", b =>
                 {
-                    b.Navigation("TenantPermissions");
+                    b.Navigation("Permissions");
 
                     b.Navigation("TenantRoles");
 
                     b.Navigation("TenantUsers");
-                });
-
-            modelBuilder.Entity("SaaS.NET.Core.Entities.Tenant.TenantPermission", b =>
-                {
-                    b.Navigation("TenantRolePermissions");
                 });
 
             modelBuilder.Entity("SaaS.NET.Core.Entities.Tenant.TenantRole", b =>

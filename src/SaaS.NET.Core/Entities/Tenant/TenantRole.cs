@@ -8,7 +8,7 @@ namespace SaaS.NET.Core.Entities.Tenant;
 [Table(AppSchema.TenantRoles, Schema = AppSchema.Identity)]
 public class TenantRole : AuditableEntity
 {
-    public Guid TenantId { get; set; }
+    public required Guid TenantId { get; set; }
     public Tenant Tenant { get; set; } = null!;
 
     [MaxLength(255)]
@@ -18,6 +18,8 @@ public class TenantRole : AuditableEntity
     public required string Slug { get; set; }
     
     public string? Description { get; set; }
+    
+    public bool IsActive { get; set; }
 
     public ICollection<TenantRolePermission> TenantRolePermissions { get; set; } = new List<TenantRolePermission>();
     

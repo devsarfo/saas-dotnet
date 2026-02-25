@@ -1,16 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using SaaS.NET.Core.Common;
+using SaaS.NET.Core.Entities.Tenant;
 using SaaS.NET.Shared.Constants;
 
-namespace SaaS.NET.Core.Entities.Tenant;
+namespace SaaS.NET.Core.Entities.Identity;
 
-[Table(AppSchema.TenantPermissions, Schema = AppSchema.Identity)]
-public class TenantPermission : AuditableEntity
+[Table(AppSchema.Permissions, Schema = AppSchema.Identity)]
+public class Permission : AuditableEntity
 {
-    public Guid TenantId { get; set; }
-    public Tenant Tenant { get; set; } = null!;
-    
     [MaxLength(255)]
     public required string Name { get; set; }
     

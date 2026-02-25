@@ -7,6 +7,9 @@ namespace SaaS.NET.Core.Entities.Tenant;
 [Table(AppSchema.TenantUserRoles, Schema = AppSchema.Identity)]
 public class TenantUserRole : TimestampEntity
 {
+    public required Guid TenantId { get; set; }
+    public Tenant Tenant { get; set; } = null!;
+    
     public Guid TenantUserId { get; set; }
     public TenantUser TenantUser { get; set; } = null!;
 

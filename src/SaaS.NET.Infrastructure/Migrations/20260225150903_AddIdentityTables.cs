@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SaaS.NET.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIdentity : Migration
+    public partial class AddIdentityTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -56,29 +56,28 @@ namespace SaaS.NET.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tenant_permissions",
+                name: "permissions",
                 schema: "identity",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     slug = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_tenant_permissions", x => x.id);
+                    table.PrimaryKey("pk_permissions", x => x.id);
                     table.ForeignKey(
-                        name: "fk_tenant_permissions_tenants_tenant_id",
+                        name: "fk_permissions_tenants_tenant_id",
                         column: x => x.tenant_id,
                         principalSchema: "identity",
                         principalTable: "tenants",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -91,6 +90,7 @@ namespace SaaS.NET.Infrastructure.Migrations
                     name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     slug = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -191,20 +191,21 @@ namespace SaaS.NET.Infrastructure.Migrations
                 schema: "identity",
                 columns: table => new
                 {
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     tenant_role_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    tenant_permission_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    permission_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_tenant_role_permissions", x => new { x.tenant_role_id, x.tenant_permission_id, x.deleted_at });
+                    table.PrimaryKey("pk_tenant_role_permissions", x => new { x.tenant_id, x.tenant_role_id, x.permission_id });
                     table.ForeignKey(
-                        name: "fk_tenant_role_permissions_tenant_permissions_tenant_permissio",
-                        column: x => x.tenant_permission_id,
+                        name: "fk_tenant_role_permissions_permissions_permission_id",
+                        column: x => x.permission_id,
                         principalSchema: "identity",
-                        principalTable: "tenant_permissions",
+                        principalTable: "permissions",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -214,6 +215,13 @@ namespace SaaS.NET.Infrastructure.Migrations
                         principalTable: "tenant_roles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_tenant_role_permissions_tenants_tenant_id",
+                        column: x => x.tenant_id,
+                        principalSchema: "identity",
+                        principalTable: "tenants",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -221,15 +229,16 @@ namespace SaaS.NET.Infrastructure.Migrations
                 schema: "identity",
                 columns: table => new
                 {
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     tenant_user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     tenant_role_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_tenant_user_roles", x => new { x.tenant_user_id, x.tenant_role_id, x.deleted_at });
+                    table.PrimaryKey("pk_tenant_user_roles", x => new { x.tenant_id, x.tenant_user_id, x.tenant_role_id });
                     table.ForeignKey(
                         name: "fk_tenant_user_roles_tenant_roles_tenant_role_id",
                         column: x => x.tenant_role_id,
@@ -244,7 +253,27 @@ namespace SaaS.NET.Infrastructure.Migrations
                         principalTable: "tenant_users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_tenant_user_roles_tenants_tenant_id",
+                        column: x => x.tenant_id,
+                        principalSchema: "identity",
+                        principalTable: "tenants",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_permissions_slug",
+                schema: "identity",
+                table: "permissions",
+                column: "slug",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_permissions_tenant_id",
+                schema: "identity",
+                table: "permissions",
+                column: "tenant_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_personal_access_tokens_token",
@@ -272,22 +301,28 @@ namespace SaaS.NET.Infrastructure.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_tenant_permissions_tenant_id_slug",
-                schema: "identity",
-                table: "tenant_permissions",
-                columns: new[] { "tenant_id", "slug" });
-
-            migrationBuilder.CreateIndex(
-                name: "ix_tenant_role_permissions_tenant_permission_id",
+                name: "ix_tenant_role_permissions_permission_id",
                 schema: "identity",
                 table: "tenant_role_permissions",
-                column: "tenant_permission_id");
+                column: "permission_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_tenant_roles_slug",
+                name: "ix_tenant_role_permissions_tenant_id_tenant_role_id_permission",
+                schema: "identity",
+                table: "tenant_role_permissions",
+                columns: new[] { "tenant_id", "tenant_role_id", "permission_id", "deleted_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tenant_role_permissions_tenant_role_id",
+                schema: "identity",
+                table: "tenant_role_permissions",
+                column: "tenant_role_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tenant_roles_slug_deleted_at",
                 schema: "identity",
                 table: "tenant_roles",
-                column: "slug",
+                columns: new[] { "slug", "deleted_at" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -301,6 +336,12 @@ namespace SaaS.NET.Infrastructure.Migrations
                 schema: "identity",
                 table: "tenant_user_roles",
                 column: "tenant_role_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tenant_user_roles_tenant_user_id",
+                schema: "identity",
+                table: "tenant_user_roles",
+                column: "tenant_user_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_tenant_users_tenant_id_user_id_deleted_at",
@@ -356,7 +397,7 @@ namespace SaaS.NET.Infrastructure.Migrations
                 schema: "identity");
 
             migrationBuilder.DropTable(
-                name: "tenant_permissions",
+                name: "permissions",
                 schema: "identity");
 
             migrationBuilder.DropTable(

@@ -8,16 +8,17 @@ public class TenantRolePermissionConfiguration : IEntityTypeConfiguration<Tenant
 {
     public void Configure(EntityTypeBuilder<TenantRolePermission> builder)
     {
-        builder.HasKey(trp => new { trp.TenantRoleId, trp.TenantPermissionId, trp.DeletedAt });
+        builder.HasKey(trp => new { trp.TenantId, trp.TenantRoleId, trp.PermissionId });
+        builder.HasIndex(trp => new { trp.TenantId, trp.TenantRoleId, trp.PermissionId, trp.DeletedAt });
 
         builder.HasOne(trp => trp.TenantRole)
             .WithMany(tr => tr.TenantRolePermissions)
             .HasForeignKey(trp => trp.TenantRoleId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(trp => trp.TenantPermission)
+        builder.HasOne(trp => trp.Permission)
             .WithMany(tp => tp.TenantRolePermissions)
-            .HasForeignKey(trp => trp.TenantPermissionId)
+            .HasForeignKey(trp => trp.PermissionId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

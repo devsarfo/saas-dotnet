@@ -16,12 +16,12 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<PersonalAccessToken> PersonalAccessTokens => Set<PersonalAccessToken>();
+    public DbSet<Permission> Permissions { get; set; }
 
     // Tenant
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<TenantUser> TenantUsers { get; set; }
     public DbSet<TenantRole> TenantRoles { get; set; }
-    public DbSet<TenantPermission> TenantPermissions { get; set; }
     public DbSet<TenantRolePermission> TenantRolePermissions { get; set; }
     public DbSet<TenantUserRole> TenantUserRoles { get; set; }
 
@@ -38,7 +38,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new TenantConfiguration());
         modelBuilder.ApplyConfiguration(new TenantUserConfiguration());
         modelBuilder.ApplyConfiguration(new TenantRoleConfiguration());
-        modelBuilder.ApplyConfiguration(new TenantPermissionConfiguration());
+        modelBuilder.ApplyConfiguration(new PermissionConfiguration());
         modelBuilder.ApplyConfiguration(new TenantRolePermissionConfiguration());
         modelBuilder.ApplyConfiguration(new TenantUserRoleConfiguration());
     }

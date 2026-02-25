@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using SaaS.NET.Core.Common;
+using SaaS.NET.Core.Entities.Identity;
 using SaaS.NET.Shared.Constants;
 
 namespace SaaS.NET.Core.Entities.Tenant;
@@ -18,5 +19,5 @@ public class Tenant : AuditableEntity
 
     public ICollection<TenantRole> TenantRoles { get; set; } = new List<TenantRole>();
 
-    public ICollection<TenantPermission> TenantPermissions { get; set; } = new List<TenantPermission>();
+    public ICollection<Permission> Permissions { get; set; } = new List<Permission>();
 }

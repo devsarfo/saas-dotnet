@@ -28,6 +28,7 @@ saas-dotnet/
 │   ├── SaaS.NET.Application/   # Business logic & vertical slices
 │   ├── SaaS.NET.Infrastructure/# Adapters: EF Core, Identity, Multi-Tenancy
 │   ├── SaaS.NET.Web/           # Entry point: Controllers & DI setup
+│   ├── SaaS.NET.Migrations/    # Migration & database seeding runner
 │   └── SaaS.NET.Shared/        # Utilities & extensions
 ├── tests/                      # Unit, Integration, and Architecture tests
 ├── docker/                     # Docker configuration
