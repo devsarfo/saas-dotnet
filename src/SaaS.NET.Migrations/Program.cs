@@ -41,12 +41,12 @@ try
 
     var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
     await dbContext.Database.MigrateAsync();
-    Console.WriteLine("Database migration completed successfully...");
+    Console.WriteLine("Database migration completed successfully...\n");
 
     Console.WriteLine("Seeding database...");
     var databaseSeeder = serviceProvider.GetRequiredService<DatabaseSeeder>();
     await databaseSeeder.Run();
-    Console.WriteLine("Database seeding completed successfully....");
+    Console.WriteLine("Database seeding completed successfully....\n");
 }
 catch (Exception ex)
 {
